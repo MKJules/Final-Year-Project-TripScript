@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:trip_script/forgotpassword.dart';
 import 'package:trip_script/signup.dart';
-
-
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});
@@ -25,9 +24,12 @@ class SignInScreen extends StatelessWidget {
                 ),
               ),
               Container(
+                height: 716.h,
                 decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(30),
+                  ),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -64,25 +66,37 @@ class SignInScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                  const SizedBox(height: 10.0),
-                  TextButton(onPressed: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),);
-                  },
-                    child: const Align(alignment: Alignment.centerRight,
-                    child: Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: Colors.grey),
-                    ),),),
+                      const SizedBox(height: 10.0),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const ForgotPasswordScreen(),
+                            ),
+                          );
+                        },
+                        child: const Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            'Forgot Password?',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () {
                           // Sign in action
                         },
-
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(30),
                           ),
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          fixedSize: Size(370.w, 60.h),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 32,
                             vertical: 12,
@@ -90,55 +104,34 @@ class SignInScreen extends StatelessWidget {
                         ),
                         child: const Text('Sign In'),
                       ),
-                      const SizedBox(height: 16),
-                      const Text('OR'),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              // Google sign in action
-                            },
-                            icon: const Icon(Icons.email),
-                            label: const Text('Google'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                side: const BorderSide(color: Colors.grey),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              // Apple sign in action
-                            },
-                            icon: const Icon(Icons.apple),
-                            label: const Text('Apple'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                side: const BorderSide(color: Colors.grey),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                       const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Don\'t have an account? '),
+                          Text(
+                            'Don\'t have an account? ',
+                            style: TextStyle(
+                              color: const Color.fromRGBO(149, 149, 149, 1),
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
                           TextButton(
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpScreen()),); // Navigate to sign in screen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const SignUpScreen()),
+                              ); // Navigate to sign in screen
                             },
-                            child: const Text('Sign Up'),
+                            child: Text(
+                              'Sign Up',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14.sp,
+                              ),
+                            ),
                           ),
                         ],
                       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:trip_script/dashboard.dart';
 
 
@@ -23,6 +24,7 @@ class OTPVerificationScreen extends StatelessWidget {
                 ),
               ),
               Container(
+                height: 716.h,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
@@ -60,8 +62,11 @@ class OTPVerificationScreen extends StatelessWidget {
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(30),
                           ),
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          fixedSize: Size(370.w, 60.h),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 32,
                             vertical: 12,
