@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:trip_script/otp.dart';
 
 void main() {
@@ -37,6 +38,7 @@ Widget build(BuildContext context) {
               ),
             ),
             Container(
+              height: 716.h,
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
@@ -75,8 +77,11 @@ Widget build(BuildContext context) {
                       },
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(30),
                         ),
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        fixedSize: Size(370.w, 60.h),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 32,
                           vertical: 12,

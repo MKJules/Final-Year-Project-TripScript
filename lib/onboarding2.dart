@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:trip_script/onboarding3.dart';
 
 void main() {
@@ -31,7 +32,7 @@ class OnboardingScreen2 extends StatelessWidget {
               flex: 3,
               child: Center(
                 child: Image.network(
-                  'https://your-image-url-here', // Replace with your image URL
+                  'https://your-image-url-here',
                   fit: BoxFit.cover,
                 ),
               ),
@@ -68,8 +69,11 @@ class OnboardingScreen2 extends StatelessWidget {
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(30),
                           ),
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          fixedSize: Size(370.w, 60.h),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 32,
                             vertical: 12,

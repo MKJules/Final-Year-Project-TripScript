@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:trip_script/signup.dart';
 
 void main() {
@@ -68,8 +69,11 @@ class OnboardingScreen3 extends StatelessWidget {
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(30),
                           ),
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          fixedSize: Size(370.w, 60.h),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 32,
                             vertical: 12,
