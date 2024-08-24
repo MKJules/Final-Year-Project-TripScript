@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "152973280203",
+    "project_id": "tripscript-c8649",
+    "storage_bucket": "tripscript-c8649.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:152973280203:android:43171cc1f359cccc5a2c4e",
+        "android_client_info": {
+          "package_name": "com.example.application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJdcOVy41CWsIuai2g4qWCdlRfs4quDxg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
