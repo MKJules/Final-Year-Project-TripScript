@@ -1,8 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:trip_script/edit_profile.dart';
+import 'package:trip_script/orders.dart';
+import 'package:trip_script/settings.dart';
+import 'package:trip_script/support.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -64,35 +66,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       vertical: 72.h,
                     ),
                     children: [
-                      const ProfileListTile(
+                      ProfileListTile(
                         title: 'Your Orders',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return const OrderHistory();
+                              },
+                            ),
+                          );
+                        },
                         subtitle:
                             'View your order and transaction history here',
                         canExpand: true,
                       ),
                       SizedBox(height: 20.h),
-                      const ProfileListTile(
-                        title: 'Payment Method',
-                        subtitle:
-                            'Save your preferred payment method for smoother transactions',
-                        canExpand: true,
-                      ),
-                      SizedBox(height: 20.h),
-                      const ProfileListTile(
-                        title: 'Coupons & Vouchers',
-                        subtitle:
-                            'Claim vouchers and discounts for reduced prices or free shipping',
-                        canExpand: true,
-                      ),
-                      SizedBox(height: 20.h),
-                      const ProfileListTile(
+                      ProfileListTile(
                         title: 'Support Center',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return const SupportCenter();
+                              },
+                            ),
+                          );
+                        },
                         subtitle: 'Find the best answer to your question',
                         canExpand: true,
                       ),
                       SizedBox(height: 20.h),
-                      const ProfileListTile(
+                      ProfileListTile(
                         title: 'Settings',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return const Settings();
+                              },
+                            ),
+                          );
+                        },
                         subtitle: 'View and set your account preferences',
                         canExpand: false,
                       ),
@@ -106,35 +124,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Material(
                       borderRadius: BorderRadius.circular(10.r),
                       elevation: 5,
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: 370.w,
-                        height: 81.h,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        child: ListTile(
-                          leading: ClipOval(
-                            child: Image.asset(
-                              'images/user.jpeg',
-                              width: 43.w,
-                              height: 43.h,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return const EditProfile();
+                              },
                             ),
+                          );
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: 370.w,
+                          height: 81.h,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.r),
                           ),
-                          title: Text(
-                            'Julian',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w500,
+                          child: ListTile(
+                            leading: ClipOval(
+                              child: Image.asset(
+                                'images/user.jpeg',
+                                width: 43.w,
+                                height: 43.h,
+                              ),
                             ),
-                          ),
-                          subtitle: Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w300,
-                              fontSize: 10.sp,
-                              color: const Color.fromRGBO(112, 112, 112, 1),
+                            title: Text(
+                              'Julian',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'Edit Profile',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w300,
+                                fontSize: 10.sp,
+                                color: const Color.fromRGBO(112, 112, 112, 1),
+                              ),
                             ),
                           ),
                         ),
@@ -157,70 +187,75 @@ class ProfileListTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.canExpand,
+    required this.onTap,
   });
 
   final String title;
   final String subtitle;
   final bool canExpand;
+  final Function() onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 100.h,
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: 19.w,
-        vertical: 15.h,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(
-          color: const Color.fromRGBO(175, 175, 175, 1),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 100.h,
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: 19.w,
+          vertical: 15.h,
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          canExpand
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      'See all',
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w300,
-                      ),
-                    ),
-                  ],
-                )
-              : Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-          SizedBox(height: 15.h),
-          SizedBox(
-            width: 215.w,
-            child: Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 10.sp,
-                fontWeight: FontWeight.w300,
-              ),
-              softWrap: true,
-            ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(
+            color: const Color.fromRGBO(175, 175, 175, 1),
           ),
-        ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            canExpand
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        'See all',
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                    ],
+                  )
+                : Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+            SizedBox(height: 15.h),
+            SizedBox(
+              width: 215.w,
+              child: Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w300,
+                ),
+                softWrap: true,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

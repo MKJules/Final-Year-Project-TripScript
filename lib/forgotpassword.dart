@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:trip_script/otp.dart';
 
 void main() {
@@ -31,9 +32,10 @@ Widget build(BuildContext context) {
             SizedBox(
               height: 300,
               child: Center(
-                child: Image.network(
-                  'https://your-image-url-here', // Replace with your image URL
-                  fit: BoxFit.cover,
+                child: SvgPicture.asset(
+                  'images/forgot_password.svg',
+                  height: 250.w,
+                  width: 232.h,
                 ),
               ),
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:trip_script/settings.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,7 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/details');  // Navigate to DetailsPage
+                      Navigator.pushNamed(
+                          context, '/details'); // Navigate to DetailsPage
                     },
                     child: const PopularLocationWidget(),
                   );
@@ -123,11 +125,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 305.w,
                       height: 260.h,
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: const Color.fromRGBO(175, 175, 175, 1),
-                        ),
-                        borderRadius: BorderRadius.circular(20.r)
-                      ),
+                          border: Border.all(
+                            color: const Color.fromRGBO(175, 175, 175, 1),
+                          ),
+                          borderRadius: BorderRadius.circular(20.r)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -229,10 +230,22 @@ class IntroWidget extends StatelessWidget {
                   height: 30.h,
                 ),
                 SizedBox(width: 20.w),
-                SvgPicture.asset(
-                  'icons/setting.svg',
-                  width: 30.w,
-                  height: 30.h,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return const Settings();
+                        },
+                      ),
+                    );
+                  },
+                  child: SvgPicture.asset(
+                    'icons/setting.svg',
+                    width: 30.w,
+                    height: 30.h,
+                  ),
                 ),
               ],
             ),

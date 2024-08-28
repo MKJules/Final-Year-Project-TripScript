@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:trip_script/forgotpassword.dart';
 import 'package:trip_script/signup.dart';
 
@@ -17,9 +18,10 @@ class SignInScreen extends StatelessWidget {
               SizedBox(
                 height: 300,
                 child: Center(
-                  child: Image.network(
-                    'https://your-image-url-here', // Replace with your image URL
-                    fit: BoxFit.cover,
+                  child: SvgPicture.asset(
+                    'images/sign_in.svg',
+                    height: 315.w,
+                    width: 232.h,
                   ),
                 ),
               ),

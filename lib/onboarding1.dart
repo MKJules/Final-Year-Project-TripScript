@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:trip_script/onboarding2.dart';
 
 void main() {
@@ -31,10 +32,10 @@ class OnboardingScreen1 extends StatelessWidget {
             Expanded(
               flex: 3,
               child: Center(
-                child: Image.asset(
-                  'images/onboarding1.webp',
-                  fit: BoxFit.cover,
-                  width: double.infinity,
+                child: SvgPicture.asset(
+                  'images/onboarding1.svg',
+                  height: 315.w,
+                  width: 232.h,
                 ),
               ),
             ),
@@ -91,7 +92,7 @@ class OnboardingScreen1 extends StatelessWidget {
                             height: 10,
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey,
+                              color: Colors.black,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -100,7 +101,7 @@ class OnboardingScreen1 extends StatelessWidget {
                             height: 10,
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.black,
+                              color: Colors.grey,
                             ),
                           ),
                           const SizedBox(width: 8),

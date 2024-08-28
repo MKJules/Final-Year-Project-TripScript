@@ -60,25 +60,6 @@ class DetailsPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(
-                  text: '\$80',
-                  style: TextStyle(
-                    fontSize: 28.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                TextSpan(
-                  text: '/person',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ]),
-            ),
-            SizedBox(width: 20.w),
             ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
@@ -126,14 +107,19 @@ class LocationImageWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CircleAvatar(
-                  radius: 30.r,
-                  backgroundColor: Colors.white,
-                  child: SvgPicture.asset(
-                    'icons/back.svg',
-                    color: Colors.black,
-                    height: 24.h,
-                    width: 24.w,
+                GestureDetector(
+                  onTap: (){
+                    Navigator.pop(context);
+                  },
+                  child: CircleAvatar(
+                    radius: 30.r,
+                    backgroundColor: Colors.white,
+                    child: SvgPicture.asset(
+                      'icons/back.svg',
+                      color: Colors.black,
+                      height: 24.h,
+                      width: 24.w,
+                    ),
                   ),
                 ),
                 CircleAvatar(
