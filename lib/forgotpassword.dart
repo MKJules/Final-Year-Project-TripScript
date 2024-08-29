@@ -1,25 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:trip_script/otp.dart';
+import 'package:trip_script/consts/snackbar.dart';
+import 'package:trip_script/services/auth_service.dart';
 
-void main() {
-  runApp(const MyApp());
-}
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ForgotPasswordScreen extends StatefulWidget {
+  const ForgotPasswordScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: ForgotPasswordScreen(),
-    );
-  }
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
-class ForgotPasswordScreen extends StatelessWidget {
-  const ForgotPasswordScreen({super.key});
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final TextEditingController emailController = TextEditingController();
 
 @override
 Widget build(BuildContext context) {
@@ -63,9 +57,10 @@ Widget build(BuildContext context) {
                     ),
                     const SizedBox(height: 30),
                     TextField(
+                      controller: emailController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: 'youremail@whatever.com',
+                        hintText: 'youremail@whatever.com',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -73,9 +68,16 @@ Widget build(BuildContext context) {
                     ),
                     const SizedBox(height: 30.0),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async{
+                        try{
+                          String email = emailController.text.trim();
+                          await AuthService.forgotPassword(email, context);
 
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const OTPVerificationScreen()),);// Sign in action
+                          Navigator.pop(context);
+                        }
+                        catch(error){
+                          showCustomSnackbar('Error: $error', context);
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(

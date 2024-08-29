@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:trip_script/consts/snackbar.dart';
+import 'package:trip_script/dashboard.dart';
 import 'package:trip_script/forgotpassword.dart';
+import 'package:trip_script/services/auth_service.dart';
 import 'package:trip_script/signup.dart';
 
-class SignInScreen extends StatelessWidget {
+class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
+
+  @override
+  State<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
+  final formKey = GlobalKey<FormState>();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool isPressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -50,22 +63,32 @@ class SignInScreen extends StatelessWidget {
                         style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                       const SizedBox(height: 16),
-                      TextField(
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                      Form(
+                        key: formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextFormField(
+                              controller: emailController,
+                              decoration: InputDecoration(
+                                labelText: 'Email',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: passwordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: 'Password',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 10.0),
@@ -89,8 +112,39 @@ class SignInScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton(
-                        onPressed: () {
-                          // Sign in action
+                        onPressed: () async {
+                          try {
+                            setState(() {
+                              isPressed = true;
+                            });
+
+                            if (formKey.currentState!.validate()) {}
+
+                            String email = emailController.text.trim();
+                            String password = passwordController.text;
+
+                            await AuthService.signIn(email, password, context);
+
+                            showCustomSnackbar('Signed In', context);
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return const Dashboard();
+                                },
+                              ),
+                            );
+
+                            setState(() {
+                              isPressed = false;
+                            });
+                          } catch (error) {
+                            setState(() {
+                              isPressed = false;
+                            });
+                            showCustomSnackbar('Error: $error', context);
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -104,7 +158,13 @@ class SignInScreen extends StatelessWidget {
                             vertical: 12,
                           ),
                         ),
-                        child: const Text('Sign In'),
+                        child: isPressed
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Sign In'),
                       ),
                       const SizedBox(height: 24),
                       Row(
@@ -123,7 +183,8 @@ class SignInScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const SignUpScreen()),
+                                  builder: (context) => const SignUpScreen(),
+                                ),
                               ); // Navigate to sign in screen
                             },
                             child: Text(

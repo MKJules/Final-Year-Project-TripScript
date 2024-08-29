@@ -1,28 +1,35 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import 'package:trip_script/consts/snackbar.dart';
+import 'package:trip_script/dashboard.dart';
+import 'package:trip_script/models/user.dart';
+import 'package:trip_script/providers/user_provider.dart';
+import 'package:trip_script/services/auth_service.dart';
 import 'package:trip_script/sign_in.dart';
+import 'package:uuid/uuid.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: SignUpScreen(),
-    );
-  }
-}
-
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
   @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  final formKey = GlobalKey<FormState>();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
+    final UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -62,37 +69,91 @@ class SignUpScreen extends StatelessWidget {
                         style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                       const SizedBox(height: 16),
-                      TextField(
-                        decoration: InputDecoration(
-                          labelText: 'Name',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                      Form(
+                        key: formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextFormField(
+                              controller: nameController,
+                              decoration: InputDecoration(
+                                labelText: 'Name',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: emailController,
+                              decoration: InputDecoration(
+                                labelText: 'Email',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              controller: passwordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: 'Password',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton(
-                        onPressed: () {
-                          // Sign up action
+                        onPressed: () async {
+                          try {
+                            if (formKey.currentState!.validate()) {}
+
+                            setState(() {
+                              isPressed = true;
+                            });
+
+                            String name = nameController.text;
+                            String email = emailController.text.trim();
+                            String password = passwordController.text;
+                            User user = User(
+                              uid: const Uuid().v4(),
+                              name: name,
+                              imagePath:
+                                  'https://images.app.goo.gl/1LFDVPPEt32MSYuKA',
+                              email: email,
+                              phoneNumber: '',
+                              emergencyNumber: '',
+                            );
+                            await AuthService.signUp(user, password, context);
+                            await userProvider.createUser(user);
+
+                            showCustomSnackbar(
+                                'Registration complete', context);
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return const Dashboard();
+                                },
+                              ),
+                            );
+
+                            setState(() {
+                              isPressed = false;
+                            });
+                          } catch (error) {
+                            setState(() {
+                              isPressed = false;
+                            });
+                            log("Error: $error");
+                            showCustomSnackbar('Error: $error', context);
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -106,7 +167,13 @@ class SignUpScreen extends StatelessWidget {
                             vertical: 12,
                           ),
                         ),
-                        child: const Text('Sign Up'),
+                        child: isPressed
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Sign Up'),
                       ),
                       const SizedBox(height: 24),
                       Row(

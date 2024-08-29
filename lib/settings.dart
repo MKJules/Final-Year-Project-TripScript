@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:trip_script/services/auth_service.dart';
+import 'package:trip_script/sign_in.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -98,9 +100,20 @@ class _SettingsState extends State<Settings> {
                     title: 'Location',
                   ),
                   SizedBox(height: 40.h),
-                  const SettingsListTile(
+                  SettingsListTile(
                     iconPath: 'icons/sign_out.svg',
                     title: 'Sign Out',
+                    onTap: () async {
+                      await AuthService.signOut();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return const SignInScreen();
+                          },
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -117,10 +130,12 @@ class SettingsListTile extends StatelessWidget {
     super.key,
     required this.iconPath,
     required this.title,
+    this.onTap,
   });
 
   final String iconPath;
   final String title;
+  final Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +150,7 @@ class SettingsListTile extends StatelessWidget {
         ),
       ),
       child: ListTile(
+        onTap: onTap,
         leading: SvgPicture.asset(
           iconPath,
           height: 24.h,
