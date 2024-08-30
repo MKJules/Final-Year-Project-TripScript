@@ -1,7 +1,20 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:trip_script/consts/snackbar.dart';
+import 'package:trip_script/details_screen.dart';
+import 'package:trip_script/models/location.dart';
+import 'package:trip_script/providers/article_provider.dart';
+import 'package:trip_script/providers/location_provider.dart';
+import 'package:trip_script/region_locations.dart';
+import 'package:trip_script/services/location_services.dart';
 import 'package:trip_script/settings.dart';
+
+import 'models/article.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +28,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final LocationProvider locationProvider =
+        Provider.of<LocationProvider>(context, listen: false);
+    final ArticleProvider articleProvider =
+        Provider.of<ArticleProvider>(context, listen: false);
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -30,19 +47,31 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(
               height: 300.h,
-              child: ListView.builder(
-                itemCount: 2,
-                padding: EdgeInsets.only(left: 30.w, top: 20.h),
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(
-                          context, '/details'); // Navigate to DetailsPage
-                    },
-                    child: const PopularLocationWidget(),
-                  );
-                  // return const PopularLocationWidget();
+              child: FutureBuilder(
+                future: locationProvider.fetchNearbyPopularLocations(),
+                builder: (context, snapshots) {
+                  if (snapshots.connectionState == ConnectionState.waiting) {
+                    return const SizedBox();
+                  } else if (snapshots.hasError) {
+                    log('Error: ${snapshots.error}');
+                    showCustomSnackbar('Error: ${snapshots.hasError}', context);
+                    return const SizedBox();
+                  } else if (snapshots.hasData) {
+                    List<Location> popularNearby = snapshots.data ?? [];
+                    return ListView.builder(
+                      itemCount: 2,
+                      padding: EdgeInsets.only(left: 30.w, top: 20.h),
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        Location location = popularNearby[index];
+                        return PopularLocationWidget(
+                          location: location,
+                        );
+                      },
+                    );
+                  } else {
+                    return const SizedBox();
+                  }
                 },
               ),
             ),
@@ -55,17 +84,38 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             SizedBox(
-              height: 450.h,
-              child: ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 4,
-                padding: EdgeInsets.only(left: 30.w, top: 20.h, right: 30.w),
-                scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) {
-                  return const RecommendedLocationWidget();
-                },
-              ),
-            ),
+                height: 550.h,
+                child: FutureBuilder(
+                  future: locationProvider.fetchRecommendedLocations(),
+                  builder: (context, snapshots) {
+                    if (snapshots.connectionState == ConnectionState.waiting) {
+                      return const SizedBox();
+                    } else if (snapshots.hasError) {
+                      log('Error: ${snapshots.error}');
+                      showCustomSnackbar(
+                          'Error: ${snapshots.hasError}', context);
+                      return const SizedBox();
+                    } else if (snapshots.hasData) {
+                      List<Location> recommendedLocations =
+                          snapshots.data ?? [];
+                      return ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: 4,
+                        padding:
+                            EdgeInsets.only(left: 30.w, top: 20.h, right: 30.w),
+                        scrollDirection: Axis.vertical,
+                        itemBuilder: (context, index) {
+                          Location location = recommendedLocations[index];
+                          return RecommendedLocationWidget(
+                            location: location,
+                          );
+                        },
+                      );
+                    } else {
+                      return const SizedBox();
+                    }
+                  },
+                )),
             SizedBox(height: 40.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 30.w),
@@ -76,12 +126,30 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(
               height: 270.h,
-              child: ListView.builder(
-                itemCount: 2,
-                padding: EdgeInsets.only(left: 30.w, top: 20.h),
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  return const NearestLocationWidget();
+              child: FutureBuilder(
+                future: locationProvider.fetchNearbyLocations(),
+                builder: (context, snapshots) {
+                  if (snapshots.connectionState == ConnectionState.waiting) {
+                    return const SizedBox();
+                  } else if (snapshots.hasData) {
+                    List<Location> nearbyLocations = snapshots.data ?? [];
+                    return ListView.builder(
+                      itemCount: 2,
+                      padding: EdgeInsets.only(left: 30.w, top: 20.h),
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        Location location = nearbyLocations[index];
+                        return NearestLocationWidget(
+                          location: location,
+                        );
+                      },
+                    );
+                  } else if (snapshots.hasError) {
+                    log('Error: ${snapshots.error}');
+                    return const SizedBox();
+                  } else {
+                    return const SizedBox();
+                  }
                 },
               ),
             ),
@@ -95,13 +163,21 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(
               height: 236.h,
-              child: ListView.builder(
-                itemCount: 2,
+              child: ListView(
                 padding: EdgeInsets.only(left: 30.w, top: 20.h),
                 scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  return const LocationWidget();
-                },
+                children: const [
+                  LocationWidget(
+                    city: 'Ashanti Region',
+                    region: 'Ashanti',
+                    asset: 'images/kumasi.jpg',
+                  ),
+                  LocationWidget(
+                    city: 'Greater Accra',
+                    region: 'Greater Accra',
+                    asset: 'images/accra.jpg',
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 40.h),
@@ -114,67 +190,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(
               height: 260.h,
-              child: ListView.builder(
-                itemCount: 2,
-                padding: EdgeInsets.only(left: 30.w, top: 20.h),
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: EdgeInsets.only(right: 20.w),
-                    child: Container(
-                      width: 305.w,
-                      height: 260.h,
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color.fromRGBO(175, 175, 175, 1),
-                          ),
-                          borderRadius: BorderRadius.circular(20.r)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            height: 135.h,
-                            child: const Placeholder(),
-                          ),
-                          SizedBox(height: 10.h),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 10.w,
-                              vertical: 10.h,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Article Title',
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  'Article Author',
-                                  style: TextStyle(
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                SizedBox(height: 10.h),
-                                Text(
-                                  '3 Aug 2024',
-                                  style: TextStyle(
-                                    fontSize: 9.sp,
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+              child: FutureBuilder(
+                future: articleProvider.fetchArticles(),
+                builder: (context, snapshots) {
+                  if (snapshots.connectionState == ConnectionState.waiting) {
+                    return const SizedBox();
+                  } else if (snapshots.hasData) {
+                    List<Article> articles = snapshots.data ?? [];
+                    return ListView.builder(
+                      itemCount: 2,
+                      padding: EdgeInsets.only(left: 30.w, top: 20.h),
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        Article article = articles[index];
+                        return ArticleWidget(article: article);
+                      },
+                    );
+                  } else if (snapshots.hasError) {
+                    log('Error: ${snapshots.error}');
+                    return const SizedBox();
+                  } else {
+                    return const SizedBox();
+                  }
                 },
               ),
             ),
@@ -186,10 +223,31 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class IntroWidget extends StatelessWidget {
+class IntroWidget extends StatefulWidget {
   const IntroWidget({super.key, required this.searchController});
 
   final TextEditingController searchController;
+
+  @override
+  State<IntroWidget> createState() => _IntroWidgetState();
+}
+
+class _IntroWidgetState extends State<IntroWidget> {
+  String? cityName;
+
+  void getCityName() async {
+    String? name = await LocationService.getCity();
+
+    setState(() {
+      cityName = name;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getCityName();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +273,7 @@ class IntroWidget extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'KNUST, Kumasi',
+                      cityName ?? 'Loading...',
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w500,
@@ -262,7 +320,7 @@ class IntroWidget extends StatelessWidget {
               ),
               child: TextField(
                 keyboardType: TextInputType.text,
-                controller: searchController,
+                controller: widget.searchController,
                 decoration: InputDecoration(
                   hintText: 'Search',
                   hintStyle: TextStyle(
@@ -297,12 +355,14 @@ class DoubleHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          softWrap: true,
-          style: TextStyle(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w600,
+        Expanded(
+          child: Text(
+            title,
+            softWrap: true,
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         GestureDetector(
@@ -321,27 +381,30 @@ class DoubleHeader extends StatelessWidget {
 }
 
 class PopularImageWidget extends StatelessWidget {
-  const PopularImageWidget({super.key});
+  const PopularImageWidget({
+    super.key,
+    required this.imagePath,
+    required this.category,
+  });
+
+  final String imagePath;
+  final String category;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
+        Image.network(
+          imagePath,
+          fit: BoxFit.cover,
           height: 195.h,
-          width: 232.w,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          child: const Placeholder(),
+          width: double.infinity,
         ),
         Align(
           alignment: Alignment.topLeft,
           child: Transform.translate(
             offset: Offset(18.w, 18.h),
             child: Container(
-              height: 21.h,
-              width: 65.w,
               padding: EdgeInsets.symmetric(
                 horizontal: 8.w,
                 vertical: 3.h,
@@ -351,7 +414,7 @@ class PopularImageWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Text(
-                'Category',
+                category,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 10.sp,
@@ -366,78 +429,98 @@ class PopularImageWidget extends StatelessWidget {
 }
 
 class PopularLocationWidget extends StatelessWidget {
-  const PopularLocationWidget({super.key});
+  const PopularLocationWidget({super.key, required this.location});
+
+  final Location location;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(right: 20.w),
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: 10.w,
-          vertical: 10.h,
-        ),
-        width: 240.w,
-        height: 300.h,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(
-            color: const Color.fromRGBO(175, 175, 175, 1),
-          ),
-        ),
-        child: Column(
-          children: [
-            const PopularImageWidget(),
-            SizedBox(height: 10.h),
-            Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Location Name',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(height: 10.h),
-                    Row(
-                      children: [
-                        SvgPicture.asset(
-                          'icons/location.svg',
-                          width: 12.w,
-                          height: 12.h,
-                        ),
-                        SizedBox(width: 10.w),
-                        Text(
-                          'Brunei Complex, KNUST',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w300,
-                            fontSize: 10.sp,
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-                const Spacer(),
-                SvgPicture.asset(
-                  'icons/star.svg',
-                  width: 16.w,
-                  height: 16.h,
-                ),
-                SizedBox(width: 5.w),
-                Text(
-                  '4.5',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12.sp,
-                  ),
-                )
-              ],
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return DetailsPage(
+                  location: location,
+                );
+              },
             ),
-          ],
+          );
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: 10.w,
+            vertical: 10.h,
+          ),
+          width: 280.w,
+          height: 300.h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(
+              color: const Color.fromRGBO(175, 175, 175, 1),
+            ),
+          ),
+          child: Column(
+            children: [
+              PopularImageWidget(
+                imagePath: location.images.first,
+                category: location.category,
+              ),
+              SizedBox(height: 10.h),
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        location.name,
+                        softWrap: true,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: 10.h),
+                      Row(
+                        children: [
+                          SvgPicture.asset(
+                            'icons/location.svg',
+                            width: 12.w,
+                            height: 12.h,
+                          ),
+                          SizedBox(width: 10.w),
+                          Text(
+                            '${location.city}, ${location.region} Region',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w300,
+                              fontSize: 10.sp,
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                  const Spacer(),
+                  SvgPicture.asset(
+                    'icons/star.svg',
+                    width: 16.w,
+                    height: 16.h,
+                  ),
+                  SizedBox(width: 5.w),
+                  Text(
+                    '4.5',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12.sp,
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -445,104 +528,126 @@ class PopularLocationWidget extends StatelessWidget {
 }
 
 class RecommendedLocationWidget extends StatelessWidget {
-  const RecommendedLocationWidget({super.key});
+  const RecommendedLocationWidget({
+    super.key,
+    required this.location,
+  });
+
+  final Location location;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: 15.h),
-      child: Container(
-        width: double.infinity,
-        height: 95.h,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(
-            color: const Color.fromRGBO(175, 175, 175, 1),
-          ),
-        ),
-        child: Row(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(10.sp),
-              child: Container(
-                width: 74.w,
-                height: 81.h,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: const Placeholder(),
-              ),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return DetailsPage(
+                  location: location,
+                );
+              },
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 10.w,
-                vertical: 10.h,
+          );
+        },
+        child: Container(
+          width: double.infinity,
+          height: 120.h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(
+              color: const Color.fromRGBO(175, 175, 175, 1),
+            ),
+          ),
+          child: Row(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(10.sp),
+                child: Image.network(
+                  location.images.first,
+                  fit: BoxFit.cover,
+                  width: 74.w,
+                  height: 81.h,
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Location Name',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
+              Flexible(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 10.h,
                   ),
-                  Container(
-                    width: 65.w,
-                    height: 21.h,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6.r),
-                      border: Border.all(
-                        color: const Color.fromRGBO(175, 175, 175, 1),
-                        width: 0.5.w,
-                      ),
-                    ),
-                    child: Text(
-                      'Category',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 10.sp,
-                      ),
-                    ),
-                  ),
-                  Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SvgPicture.asset(
-                        'icons/location.svg',
-                        width: 12.w,
-                        height: 12.h,
-                      ),
-                      SizedBox(width: 10.w),
-                      Text(
-                        'Brunei Complex, KNUST',
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w300,
+                        Text(
+                          location.name,
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      Container(
+                        height: 21.h,
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.symmetric(horizontal: 5.w),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6.r),
+                          border: Border.all(
+                            color: const Color.fromRGBO(175, 175, 175, 1),
+                            width: 0.5.w,
+                          ),
+                        ),
+                        child: Text(
+                          location.category,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 10.sp,
+                          ),
                         ),
                       ),
-                      SizedBox(width: 50.w),
-                      SvgPicture.asset(
-                        'icons/star.svg',
-                        width: 16.w,
-                        height: 16.h,
-                      ),
-                      SizedBox(width: 10.w),
-                      Text(
-                        '4.5',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
+                      Row(
+                        children: [
+                          SvgPicture.asset(
+                            'icons/location.svg',
+                            width: 12.w,
+                            height: 12.h,
+                          ),
+                          SizedBox(width: 10.w),
+                          Text(
+                            location.city,
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                          SizedBox(width: 50.w),
+                          SvgPicture.asset(
+                            'icons/star.svg',
+                            width: 16.w,
+                            height: 16.h,
+                          ),
+                          SizedBox(width: 10.w),
+                          Text(
+                            '${location.rating}',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      )
                     ],
-                  )
-                ],
-              ),
-            )
-          ],
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -550,62 +655,49 @@ class RecommendedLocationWidget extends StatelessWidget {
 }
 
 class NearestImageWidget extends StatelessWidget {
-  const NearestImageWidget({super.key});
+  const NearestImageWidget(
+      {super.key,
+      required this.imagePath,
+      required this.category,
+      required this.rating});
+
+  final String imagePath;
+  final String category;
+  final double rating;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Center(
-          child: Container(
+          child: Image.network(
+            imagePath,
             height: 167.h,
             width: 167.w,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            child: const Placeholder(),
+            fit: BoxFit.cover,
           ),
         ),
         Align(
           alignment: Alignment.topLeft,
           child: Transform.translate(
-            offset: Offset(18.w, 18.h),
-            child: Row(
-              children: [
-                Container(
-                  height: 21.h,
-                  width: 65.w,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 8.w,
-                    vertical: 3.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(6.r),
-                  ),
-                  child: Text(
-                    'Category',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 10.sp,
-                    ),
-                  ),
+            offset: Offset(10.w, 18.h),
+            child: Container(
+              height: 21.h,
+              padding: EdgeInsets.symmetric(
+                horizontal: 8.w,
+                vertical: 3.h,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(6.r),
+              ),
+              child: Text(
+                category,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 10.sp,
                 ),
-                SizedBox(width: 20.w),
-                SvgPicture.asset(
-                  'icons/star.svg',
-                  width: 16.w,
-                  height: 16.h,
-                ),
-                SizedBox(width: 5.w),
-                Text(
-                  '4.5',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12.sp,
-                  ),
-                )
-              ],
+              ),
             ),
           ),
         )
@@ -615,54 +707,137 @@ class NearestImageWidget extends StatelessWidget {
 }
 
 class NearestLocationWidget extends StatelessWidget {
-  const NearestLocationWidget({super.key});
+  const NearestLocationWidget({super.key, required this.location});
+
+  final Location location;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(right: 20.w),
-      child: Container(
-        width: 175.w,
-        height: 270.h,
-        padding: EdgeInsets.symmetric(
-          horizontal: 10.w,
-          vertical: 10.h,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(
-            color: const Color.fromRGBO(175, 175, 175, 1),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return DetailsPage(
+                  location: location,
+                );
+              },
+            ),
+          );
+        },
+        child: Container(
+          width: 180.w,
+          height: 270.h,
+          padding: EdgeInsets.symmetric(
+            horizontal: 10.w,
+            vertical: 10.h,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(
+              color: const Color.fromRGBO(175, 175, 175, 1),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              NearestImageWidget(
+                imagePath: location.images.first,
+                category: location.category,
+                rating: location.rating,
+              ),
+              SizedBox(height: 10.h),
+              Text(
+                location.name,
+                maxLines: 2,
+                softWrap: true,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: 10.h),
+              Expanded(
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'icons/location.svg',
+                      width: 12.w,
+                      height: 12.h,
+                    ),
+                    SizedBox(width: 10.w),
+                    Text(
+                      location.city,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 10.sp,
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const NearestImageWidget(),
-            SizedBox(height: 10.h),
-            Text(
-              'Location Name',
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-              ),
+      ),
+    );
+  }
+}
+
+class LocationWidget extends StatelessWidget {
+  const LocationWidget({
+    super.key,
+    required this.city,
+    required this.region,
+    required this.asset,
+  });
+
+  final String city;
+  final String region;
+  final String asset;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(right: 20.w),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return RegionLocations(region: region);
+              },
             ),
-            SizedBox(height: 10.h),
-            Row(
-              children: [
-                SvgPicture.asset(
-                  'icons/location.svg',
-                  width: 12.w,
-                  height: 12.h,
-                ),
-                SizedBox(width: 10.w),
-                Text(
-                  'Brunei Complex, KNUST',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    fontSize: 10.sp,
-                  ),
-                )
-              ],
+          );
+        },
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              height: 236.h,
+              width: 175.w,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.r),
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    opacity: 0.5,
+                    image: AssetImage(
+                      asset,
+                    ),
+                  )),
+            ),
+            Text(
+              city,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 14.sp,
+                color: Colors.black,
+              ),
             )
           ],
         ),
@@ -671,33 +846,67 @@ class NearestLocationWidget extends StatelessWidget {
   }
 }
 
-class LocationWidget extends StatelessWidget {
-  const LocationWidget({super.key});
+class ArticleWidget extends StatelessWidget {
+  const ArticleWidget({super.key, required this.article});
+
+  final Article article;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(right: 20.w),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            height: 236.h,
-            width: 175.w,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20.r),
-              color: Colors.blueGrey,
-            ),
+      child: Container(
+        width: 305.w,
+        height: 290.h,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: const Color.fromRGBO(175, 175, 175, 1),
           ),
-          Text(
-            'City Name',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 14.sp,
-              color: Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.network(
+              article.image,
+              width: double.infinity,
+              height: 135.h,
+              fit: BoxFit.cover,
             ),
-          )
-        ],
+            Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 10.w,
+                vertical: 10.h,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    article.title,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    article.source,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    DateFormat('dd MMM yyyy').format(article.date),
+                    style: TextStyle(
+                      fontSize: 9.sp,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

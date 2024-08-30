@@ -27,6 +27,10 @@ dependencies:
   provider: ^6.1.2
   cloud_firestore: ^4.14.0
   uuid: ^4.4.2
+  geolocator: ^13.0.1
+  geocoding: ^3.0.0
+  webview_flutter: ^4.8.0
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:

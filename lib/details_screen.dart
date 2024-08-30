@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:trip_script/location_webview.dart';
+import 'package:trip_script/models/location.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DetailsPage extends StatelessWidget {
-  const DetailsPage({super.key});
+  const DetailsPage({super.key, required this.location});
+
+  final Location location;
 
   @override
   Widget build(BuildContext context) {
@@ -15,20 +19,20 @@ class DetailsPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const LocationImageWidget(),
+              LocationImageWidget(location: location),
               SizedBox(height: 20.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 15.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const InfoBar(),
+                    InfoBar(
+                      location: location,
+                    ),
                     SizedBox(height: 40.h),
-                    const DescriptionSection(),
-                    SizedBox(height: 40.h),
-                    const DatePickerSection(),
-                    SizedBox(height: 40.h),
-                    const NumberSelectionSection(),
+                    DescriptionSection(
+                      description: location.description,
+                    ),
                     SizedBox(height: 40.h),
                   ],
                 ),
@@ -39,7 +43,16 @@ class DetailsPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return const LocationWebview(url: 'https://wa.link/fe1xie');
+              },
+            ),
+          );
+        },
         backgroundColor: const Color.fromRGBO(0, 176, 60, 1),
         elevation: 4.sp,
         child: SvgPicture.asset(
@@ -61,7 +74,16 @@ class DetailsPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return LocationWebview(url: location.websiteLink);
+                    },
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromRGBO(26, 142, 234, 1),
                 shape: RoundedRectangleBorder(
@@ -86,19 +108,19 @@ class DetailsPage extends StatelessWidget {
 }
 
 class LocationImageWidget extends StatelessWidget {
-  const LocationImageWidget({super.key});
+  const LocationImageWidget({super.key, required this.location});
+
+  final Location location;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
+        Image.network(
+          location.images.first,
           height: 501.h,
           width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30.r),
-            color: Colors.black,
-          ),
+          fit: BoxFit.cover,
         ),
         Transform.translate(
           offset: Offset(0, 30.h),
@@ -108,7 +130,7 @@ class LocationImageWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     Navigator.pop(context);
                   },
                   child: CircleAvatar(
@@ -143,52 +165,64 @@ class LocationImageWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Semeru Mountain',
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        SvgPicture.asset(
-                          'icons/location.svg',
-                          width: 12.w,
-                          height: 12.h,
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        location.name,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 3,
+                        style: TextStyle(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
-                        SizedBox(width: 10.w),
-                        Text(
-                          'Brunei Complex, KNUST',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14.sp,
+                      ),
+                      Row(
+                        children: [
+                          SvgPicture.asset(
+                            'icons/location.svg',
+                            width: 12.w,
+                            height: 12.h,
                             color: Colors.white,
                           ),
-                        )
-                      ],
-                    )
-                  ],
+                          SizedBox(width: 10.w),
+                          Text(
+                            location.city,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 14.sp,
+                              color: Colors.white,
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
                 ),
                 Container(
-                  width: 80.w,
-                  height: 80.h,
+                  width: 60.w,
+                  height: 60.h,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.r),
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      opacity: 0.6,
+                      image: NetworkImage(
+                        location.images.last,
+                      )
+                    ),
                     border: Border.all(
                       color: Colors.grey,
                     ),
                   ),
                   child: Text(
-                    '5+',
+                    '4+',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontWeight: FontWeight.w400,
                       fontSize: 14.sp,
                     ),
@@ -204,7 +238,9 @@ class LocationImageWidget extends StatelessWidget {
 }
 
 class InfoBar extends StatelessWidget {
-  const InfoBar({super.key});
+  const InfoBar({super.key, required this.location});
+
+  final Location location;
 
   @override
   Widget build(BuildContext context) {
@@ -237,7 +273,7 @@ class InfoBar extends StatelessWidget {
                     ),
                     SizedBox(width: 10.w),
                     Text(
-                      '4.5',
+                      '${location.rating}',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16.sp,
@@ -281,7 +317,7 @@ class InfoBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Text(
-                  'ESTIMATE',
+                  'REGION',
                   style: TextStyle(
                     color: const Color.fromRGBO(149, 149, 149, 1),
                     fontSize: 12.sp,
@@ -289,32 +325,7 @@ class InfoBar extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '3D 2N',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16.sp,
-                  ),
-                )
-              ],
-            ),
-            VerticalDivider(
-              color: const Color.fromRGBO(175, 175, 175, 1),
-              width: 1.w,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(
-                  'VIA',
-                  style: TextStyle(
-                    color: const Color.fromRGBO(149, 149, 149, 1),
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  'Ranupane',
+                  '${location.region} Region',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16.sp,
@@ -330,7 +341,9 @@ class InfoBar extends StatelessWidget {
 }
 
 class DescriptionSection extends StatelessWidget {
-  const DescriptionSection({super.key});
+  const DescriptionSection({super.key, required this.description});
+
+  final String description;
 
   @override
   Widget build(BuildContext context) {
@@ -346,7 +359,7 @@ class DescriptionSection extends StatelessWidget {
         ),
         SizedBox(height: 10.h),
         Text(
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+          description,
           style: TextStyle(
             fontWeight: FontWeight.w300,
             fontSize: 10.sp,
