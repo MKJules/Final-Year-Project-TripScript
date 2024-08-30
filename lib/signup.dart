@@ -124,7 +124,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               uid: const Uuid().v4(),
                               name: name,
                               imagePath:
-                                  'https://images.app.goo.gl/1LFDVPPEt32MSYuKA',
+                                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_SQ17optoSChOy5WJuxSSMVW9-awssh_lq9n2ipPL5YkkQvE4OQEzznRbHs&s',
                               email: email,
                               phoneNumber: '',
                               emergencyNumber: '',

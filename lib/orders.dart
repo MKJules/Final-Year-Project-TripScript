@@ -167,7 +167,7 @@ class FilterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 95.w,
+      width: 100.w,
       height: 45.h,
       padding: EdgeInsets.symmetric(
         horizontal: 6.w,
@@ -207,7 +207,7 @@ class TripWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 170.h,
+      height: 180.h,
       padding: EdgeInsets.symmetric(
         horizontal: 15.w,
         vertical: 15.h,

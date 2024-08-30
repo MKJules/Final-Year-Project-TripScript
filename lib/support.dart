@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:trip_script/models/user.dart';
 import 'package:trip_script/orders.dart';
 
 class SupportCenter extends StatefulWidget {
-  const SupportCenter({super.key});
+  const SupportCenter({super.key, required this.user});
+
+  final User user;
 
   @override
   State<SupportCenter> createState() => _SupportCenterState();
@@ -69,7 +72,7 @@ class _SupportCenterState extends State<SupportCenter> {
                 ),
                 children: [
                   Text(
-                    'Hi Julian, how can we help?',
+                    'Hi ${widget.user.name}, how can we help?',
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 16.sp,

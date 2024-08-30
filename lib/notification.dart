@@ -13,31 +13,6 @@ class Notification extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Spacer(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15.w),
-              ),
-              SvgPicture.asset(
-                'icons/back.svg',
-                color: Colors.white,
-                width: 24.w,
-                height: 24.h,
-              ),
-              SizedBox(width: 15.w),
-              Text(
-                'Back',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20.h),
           Container(
             width: double.infinity,
             height: 750.h,
