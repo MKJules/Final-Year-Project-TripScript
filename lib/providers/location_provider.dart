@@ -140,7 +140,7 @@ class LocationProvider with ChangeNotifier {
 
       final locationSnap = await FirebaseFirestore.instance
           .collection('locations')
-          .orderBy('rating')
+          .orderBy('rating', descending: true)
           .limit(8)
           .get();
       final locationDocs = locationSnap.docs;
