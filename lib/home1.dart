@@ -311,7 +311,7 @@ class _IntroWidgetState extends State<IntroWidget> {
               height: 45.h,
               width: double.infinity,
               alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: 30.w),
+              padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 15.h,),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(50.r),
                 border: Border.all(
@@ -455,7 +455,7 @@ class PopularLocationWidget extends StatelessWidget {
             horizontal: 10.w,
             vertical: 10.h,
           ),
-          width: 280.w,
+          width: 300.w,
           height: 300.h,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20.r),
@@ -478,6 +478,7 @@ class PopularLocationWidget extends StatelessWidget {
                       Text(
                         location.name,
                         softWrap: true,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w500,
@@ -526,6 +527,7 @@ class PopularLocationWidget extends StatelessWidget {
     );
   }
 }
+
 
 class RecommendedLocationWidget extends StatelessWidget {
   const RecommendedLocationWidget({
